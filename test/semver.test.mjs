@@ -88,6 +88,33 @@ test('satisfies: || unions', () => {
   assert.equal(satisfies('17.0.0', '^16 || ^18'), false);
 });
 
+test('satisfies: compound AND ranges honor BOTH bounds (regression)', () => {
+  // Previously the upper bound was silently dropped, so a too-new version
+  // wrongly PASSED. Both bounds must now be enforced.
+  assert.equal(satisfies('19.0.0', '>=18 <21'), true);
+  assert.equal(satisfies('18.0.0', '>=18 <21'), true);
+  assert.equal(satisfies('20.9.9', '>=18 <21'), true);
+  assert.equal(satisfies('21.0.0', '>=18 <21'), false); // upper bound now enforced
+  assert.equal(satisfies('25.0.0', '>=18 <21'), false); // too-new no longer passes
+  assert.equal(satisfies('17.0.0', '>=18 <21'), false); // lower bound still enforced
+  // full-precision compound
+  assert.equal(satisfies('3.0.0', '>=1.0.0 <2.0.0'), false);
+  assert.equal(satisfies('1.5.0', '>=1.0.0 <2.0.0'), true);
+  // <= upper bound is inclusive
+  assert.equal(satisfies('20.0.0', '>=18 <=20'), true);
+  assert.equal(satisfies('21.0.0', '>=18 <=20'), false);
+  // a compound alternative inside a || union
+  assert.equal(satisfies('16.5.0', '>=14 <15 || >=16 <17'), true);
+  assert.equal(satisfies('15.5.0', '>=14 <15 || >=16 <17'), false);
+});
+
+test('satisfies: operator detached from its version by spaces still parses', () => {
+  assert.equal(satisfies('20.0.0', '>= 18'), true);
+  assert.equal(satisfies('17.0.0', '>= 18'), false);
+  assert.equal(satisfies('19.0.0', '>= 18 < 21'), true);
+  assert.equal(satisfies('25.0.0', '>= 18 < 21'), false);
+});
+
 test('satisfies: junk never throws and is a non-match', () => {
   assert.equal(satisfies('not-a-version', '>=1.0.0'), false);
   assert.equal(satisfies('1.2.3', 'garbage'), false);

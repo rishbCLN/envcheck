@@ -139,6 +139,29 @@ test('loadConfig: invalid JSON reports a config error', () => {
   assert.ok(loaded.errors.some((e) => /not valid JSON/.test(e)));
 });
 
+test('loadConfig: a BOM-prefixed envcheck.json still parses (regression)', () => {
+  // Windows editors often save with a UTF-8 BOM; JSON.parse rejects it, so a
+  // valid config was wrongly reported as "not valid JSON". It must load cleanly.
+  const files = {
+    '/proj/envcheck.json': `\uFEFF${JSON.stringify({ commands: [{ name: 'node', range: '>=18' }] })}`,
+  };
+  const readFileSync = (p) => files[String(p).replace(/\\/g, '/')];
+  const existsSync = (p) => String(p).replace(/\\/g, '/') in files;
+  const loaded = loadConfig({ cwd: '/proj', readFileSync, existsSync });
+  assert.deepEqual(loaded.errors, []);
+  assert.equal(loaded.source, 'config');
+  assert.deepEqual(loaded.config.commands.map((c) => c.name), ['node']);
+});
+
+test('inferConfig: a BOM-prefixed package.json still infers (regression)', () => {
+  const files = { '/proj/package.json': `\uFEFF${JSON.stringify({ engines: { node: '>=18' } })}` };
+  const readFileSync = (p) => files[String(p).replace(/\\/g, '/')];
+  const existsSync = (p) => String(p).replace(/\\/g, '/') in files;
+  const { config, source } = inferConfig({ cwd: '/proj', readFileSync, existsSync });
+  assert.equal(source, 'inferred');
+  assert.deepEqual(config.commands.map((c) => c.name), ['node']);
+});
+
 test('loadConfig: falls back to inference when no config exists', () => {
   const files = { '/proj/package.json': JSON.stringify({ engines: { node: '>=18' } }) };
   const readFileSync = (p) => files[String(p).replace(/\\/g, '/')];

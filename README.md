@@ -89,8 +89,8 @@ Drop an `envcheck.json` in your project root:
 
 Supported version ranges (implemented with a tiny built-in comparator — no
 `semver` dependency): plain versions (`1.2.3`), `>=`, `>`, `<=`, `<`, `=`,
-caret (`^1.2`), tilde (`~1.2.3`), x-ranges (`1.2.x`, `1.x`, `*`), and `||`
-unions (`^16 || ^18`).
+caret (`^1.2`), tilde (`~1.2.3`), x-ranges (`1.2.x`, `1.x`, `*`), space-separated
+AND compounds (`>=16 <21`), and `||` unions (`^16 || ^18`).
 
 ## Zero-config behaviour
 

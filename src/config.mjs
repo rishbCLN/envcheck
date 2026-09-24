@@ -14,6 +14,18 @@ function emptyConfig() {
 }
 
 /**
+ * Strip a leading UTF-8 BOM before JSON parsing. Editors on Windows frequently
+ * save files with a BOM, and `JSON.parse` rejects it ("Unexpected token") even
+ * though the JSON is otherwise valid — so a BOM-prefixed envcheck.json /
+ * package.json must not be misreported as invalid.
+ * @param {string} text
+ * @returns {string}
+ */
+function stripBom(text) {
+  return typeof text === 'string' && text.charCodeAt(0) === 0xFEFF ? text.slice(1) : text;
+}
+
+/**
  * Parse a `.env.example` file into a list of variable NAMES.
  * Ignores blank lines and `#` comments, tolerates an `export ` prefix and
  * `KEY=value` / `KEY=` / bare `KEY` forms, and NEVER looks at the values.
@@ -198,7 +210,7 @@ export function inferConfig(opts = {}) {
   const pkgPath = join(cwd, 'package.json');
   if (exists(pkgPath)) {
     try {
-      const pkg = JSON.parse(readFile(pkgPath, 'utf8'));
+      const pkg = JSON.parse(stripBom(readFile(pkgPath, 'utf8')));
       const cmds = inferCommandsFromEngines(pkg.engines);
       if (cmds.length) {
         config.commands.push(...cmds);
@@ -244,7 +256,7 @@ export function loadConfig(opts = {}) {
     }
     let raw;
     try {
-      raw = JSON.parse(text);
+      raw = JSON.parse(stripBom(text));
     } catch (err) {
       return { config: null, source: 'config', configPath: path, errors: [`${path} is not valid JSON: ${err.message}`] };
     }

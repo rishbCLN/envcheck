@@ -2,9 +2,9 @@
 //
 // It intentionally implements only the slice of the semver spec that a
 // "is my tool new enough?" check needs: plain versions, `>= > <= < =`
-// operators, caret (`^`), tilde (`~`), x-ranges (`1.2.x`, `1.x`, `*`) and
-// `||` unions. Everything here is PURE and heavily unit-tested — no `semver`
-// dependency, by design.
+// operators, caret (`^`), tilde (`~`), x-ranges (`1.2.x`, `1.x`, `*`),
+// space-separated AND compounds (`>=16 <21`), and `||` unions. Everything here
+// is PURE and heavily unit-tested — no `semver` dependency, by design.
 
 /**
  * Parse a version-ish string into { major, minor, patch }.
@@ -138,9 +138,33 @@ function satisfiesComparator(v, token) {
 }
 
 /**
+ * Split a space-separated AND group into individual comparator tokens. An
+ * operator detached from its version by whitespace (`>= 1.2.3`) is re-joined so
+ * it stays a single comparator, matching the tolerance of `satisfiesComparator`.
+ * @param {string} group
+ * @returns {string[]}
+ */
+function splitAndGroup(group) {
+  const tokens = group.split(/\s+/).filter((t) => t.length > 0);
+  const comparators = [];
+  for (let i = 0; i < tokens.length; i++) {
+    const t = tokens[i];
+    if (/^(>=|<=|>|<|=)$/.test(t) && i + 1 < tokens.length) {
+      comparators.push(t + tokens[i + 1]);
+      i += 1;
+    } else {
+      comparators.push(t);
+    }
+  }
+  return comparators;
+}
+
+/**
  * Does `versionStr` satisfy `rangeStr`?
- * An empty/`*` range matches any parseable version; a `||` range matches if any
- * of its alternatives match. Junk on either side is a non-match (never throws).
+ * An empty/`*` range matches any parseable version. A `||` range matches if any
+ * of its alternatives match; within an alternative, space-separated comparators
+ * are ANDed together (`>=16 <21` honors BOTH bounds). Junk on either side is a
+ * non-match (never throws).
  * @param {string} versionStr
  * @param {string} rangeStr
  * @returns {boolean}
@@ -152,5 +176,9 @@ export function satisfies(versionStr, rangeStr) {
   if (raw === '') return true;
   const groups = raw.split('||').map((s) => s.trim()).filter((s) => s.length > 0);
   if (groups.length === 0) return true;
-  return groups.some((g) => satisfiesComparator(v, g));
+  return groups.some((g) => {
+    const comparators = splitAndGroup(g);
+    if (comparators.length === 0) return true;
+    return comparators.every((c) => satisfiesComparator(v, c));
+  });
 }
