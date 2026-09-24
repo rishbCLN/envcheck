@@ -1,0 +1,44 @@
+{
+  "name": "envcheck",
+  "version": "0.1.0",
+  "description": "One command tells you why a project won't run on a new machine — required tools, versions, env vars, and files. Zero dependencies.",
+  "type": "module",
+  "bin": {
+    "envcheck": "bin/envcheck.mjs"
+  },
+  "scripts": {
+    "test": "node --test",
+    "start": "node bin/envcheck.mjs"
+  },
+  "keywords": [
+    "env",
+    "envcheck",
+    "environment",
+    "doctor",
+    "onboarding",
+    "preflight",
+    "engines",
+    "semver",
+    "ci",
+    "cli",
+    "developer-tools",
+    "cross-platform",
+    "zero-dependency"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/envcheck.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YOUR_USERNAME/envcheck/issues"
+  },
+  "homepage": "https://github.com/YOUR_USERNAME/envcheck#readme"
+}
