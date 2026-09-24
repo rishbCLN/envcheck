@@ -64,13 +64,17 @@ export function parseArgs(argv) {
       case '--ci':
         result.ci = true;
         break;
-      case '--config':
-        if (i + 1 >= argv.length) {
+      case '--config': {
+        const next = argv[i + 1];
+        // Don't swallow the following token when it looks like another flag;
+        // a lone '-' is still accepted as a value.
+        if (next == null || (next.startsWith('-') && next !== '-')) {
           result.errors.push('--config requires a file path');
         } else {
           result.config = argv[++i];
         }
         break;
+      }
       default: {
         if (arg.startsWith('--config=')) {
           const value = arg.slice('--config='.length);

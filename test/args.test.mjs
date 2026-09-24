@@ -34,6 +34,17 @@ test('parseArgs: --config without a value is an error', () => {
   assert.equal(parseArgs(['--config=']).errors.length, 1);
 });
 
+test('parseArgs: --config does not swallow a following flag (regression)', () => {
+  // A forgotten value must not eat the next flag; it must error instead.
+  const r = parseArgs(['--config', '--json']);
+  assert.equal(r.config, null); // --json was NOT consumed as the config path
+  assert.equal(r.json, true); // it was parsed as its own flag instead
+  assert.ok(r.errors.some((e) => /--config requires a file path/.test(e)));
+  // Normal space and inline forms still parse.
+  assert.equal(parseArgs(['--config', 'env.json']).config, 'env.json');
+  assert.equal(parseArgs(['--config=custom/env.json']).config, 'custom/env.json');
+});
+
 test('parseArgs: help and version, short and long', () => {
   assert.equal(parseArgs(['-h']).help, true);
   assert.equal(parseArgs(['--help']).help, true);
