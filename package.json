@@ -1,10 +1,11 @@
 {
-  "name": "envcheck",
+  "name": "envcheck-cli",
   "version": "0.1.0",
   "description": "One command tells you why a project won't run on a new machine — required tools, versions, env vars, and files. Zero dependencies.",
   "type": "module",
   "bin": {
-    "envcheck": "bin/envcheck.mjs"
+    "envcheck": "bin/envcheck.mjs",
+    "envcheck-cli": "bin/envcheck.mjs"
   },
   "scripts": {
     "test": "node --test",
@@ -26,6 +27,7 @@
     "zero-dependency"
   ],
   "license": "MIT",
+  "author": "rishbCLN",
   "engines": {
     "node": ">=18"
   },

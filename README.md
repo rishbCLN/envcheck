@@ -1,7 +1,7 @@
 # envcheck
 
 [![CI](https://github.com/rishbCLN/envcheck/actions/workflows/ci.yml/badge.svg)](https://github.com/rishbCLN/envcheck/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/envcheck.svg)](https://www.npmjs.com/package/envcheck)
+[![npm](https://img.shields.io/npm/v/envcheck-cli.svg)](https://www.npmjs.com/package/envcheck-cli)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **One command tells you why the project won't run on a new machine.**
@@ -14,7 +14,7 @@ not on theirs.
 envcheck replaces that hour with one command:
 
 ```bash
-npx envcheck
+npx envcheck-cli
 ```
 
 ```
@@ -42,10 +42,10 @@ No dependencies. No config required. No account. Just Node 18+.
 
 ```bash
 # one-off, no install
-npx envcheck
+npx envcheck-cli
 
 # or install globally
-npm install -g envcheck
+npm install -g envcheck-cli
 envcheck
 ```
 
@@ -113,12 +113,12 @@ of the box:
 - uses: actions/setup-node@v4
   with:
     node-version: 20
-- run: npx envcheck --ci
+- run: npx envcheck-cli --ci
 ```
 
 ```bash
 # or anywhere
-npx envcheck --json > env-report.json
+npx envcheck-cli --json > env-report.json
 ```
 
 Exit codes: `0` everything required passed, `1` one or more required checks
